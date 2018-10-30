@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1540909489405.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B289F9E3",
+    "lastKnownWriteTime" : 1540925911,
+    "last_content_update" : 1540925911765,
+    "path" : "~/Dropbox/manure_ml/find_unique_otus.R",
+    "project_path" : "find_unique_otus.R",
+    "properties" : {
+        "cursorPosition" : "31,5",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

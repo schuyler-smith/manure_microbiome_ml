@@ -1,0 +1,1 @@
+/opt/software/R/2.15.1--GCC-4.4.5/lib64/R/bin/exec/R --slave --no-restore --file=sourcetracker/sourcetracker_for_qiime.r --args -i Manure_Check/SourceTtracker/otus.txt -m Manure_Check/SourceTtracker/meta_data.txt -o Manure_Check/SourceTtracker/output/ -v -n 2
