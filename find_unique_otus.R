@@ -5,10 +5,15 @@ phyloseq_objects <- list(nashua, pitfoam)
 columns <- c("matrix", NA)
 treatments <- c("manure", NA)
 
-find_unique_otus <- function(..., sources, treatments){
+find_unique_otus <- function(..., columns, treatments){
   require(phyloseq)
-  source("~/Dropbox/phyloseq_scripts/find_phyloseq_generalists.R")
+  source("../phyloseq_scripts/find_phyloseq_generalists.R")
+  phyloseq_objects <- list(...)
+  p_objects_names <- sapply(substitute(list(...))[-1], deparse)
+  
   for(dataset in 1:length(phyloseq_objects)){
+    sample_names(phyloseq_objects[[dataset]]) <- paste0(p_objects_names[dataset], "_", sample_names(phyloseq_objects[[dataset]]))
+    taxa_names(phyloseq_objects[[dataset]]) <- paste0(p_objects_names[dataset], "_", taxa_names(phyloseq_objects[[dataset]]))
     if(is.na(columns[dataset])){
       sources <- find_generalists(phyloseq_objects[[dataset]])
       if(sum(!(sample_names(phyloseq_objects[[dataset]]) %in% sample_names(sources))) != 0){non_sources <- subset_samples(phyloseq_objects[[dataset]], !(sample_names(phyloseq_objects[[dataset]]) %in% sample_names(sources)))
@@ -31,15 +36,11 @@ find_unique_otus <- function(..., sources, treatments){
       } else {non_source_otus <- non_source_otus}
     }
   }
-  
-  
-  print(phyloseq_objects)
+  taxa_names(source_otus) %in% taxa_names(non_source_otus)
+  source_otus <- subset_taxa(source_otus, (!(taxa_names(source_otus) %in% taxa_names(non_source_otus))))
+  source_otus <- tax_glom(source_otus, taxrank = rank_names(source_otus)[length(rank_names(source_otus))])
 }
 
 find_unique_otus(nashua, source = "manure")
 
 
-manure_genes <- row.names(otu_table(find_generalists(phylo_object, treatments = "Treatment_Group", subset = "Manure-Control", frequency = 0)))
-water_genes <- row.names(otu_table(find_generalists(phylo_object, treatments = "Treatment_Group", subset = "Effluent-Control", frequency = 0)))
-soil_genes <- row.names(otu_table(find_generalists(phylo_object, treatments = "Treatment_Group", subset = "Soil-Control", frequency = 0)))
-unique_manure_genes <- manure_genes[!(manure_genes %in% c(water_genes, soil_genes))]
