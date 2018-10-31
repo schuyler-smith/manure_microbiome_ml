@@ -1,5 +1,17 @@
 library(phyloseq)
 
-source("~/Dropbox/scripts/find_phyloseq_generalists.R")
+source("create_pan_microbiome.R")
+source("../phyloseq_scripts/find_phyloseq_generalists.R")
 
-nashua <- sample_data(subset_samples(readRDS("nashua.column.raw.otu.taxa.RDS"), (matrix == "manure")))
+nashua <- readRDS("data/nashua.column.raw.otu.taxa.RDS")
+pitfoam <- readRDS("data/pitfom.RDS")
+
+# panmb <- create_panmicrobiome(nashua, pitfoam, columns = c("matrix", NA), treatments = c("manure", NA))
+panmb <- readRDS("data/panmb.RDS")
+
+
+find_generalists(nashua, frequency = 1, treatments = "matrix", subset = "manure")
+find_generalists(pitfoam, frequency = 1)
+find_generalists(panmb, frequency = .9)
+
+
