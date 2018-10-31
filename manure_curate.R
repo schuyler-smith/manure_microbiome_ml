@@ -6,12 +6,12 @@ source("../phyloseq_scripts/find_phyloseq_generalists.R")
 nashua <- readRDS("data/nashua.column.raw.otu.taxa.RDS")
 pitfoam <- readRDS("data/pitfom.RDS")
 
-# panmb <- create_panmicrobiome(nashua, pitfoam, columns = c("matrix", NA), treatments = c("manure", NA))
+panmb <- create_panmicrobiome(nashua, pitfoam, columns = c("matrix", NA), treatments = c("manure", NA))
 panmb <- readRDS("data/panmb.RDS")
 
 
 find_generalists(nashua, frequency = 1, treatments = "matrix", subset = "manure")
 find_generalists(pitfoam, frequency = 1)
-find_generalists(panmb, frequency = .9)
+find_generalists(panmb, frequency = .99, drop_samples = TRUE)
 
 

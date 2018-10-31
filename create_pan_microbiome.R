@@ -1,4 +1,4 @@
-create_panmicrobiome <- function(..., columns, treatments, agglomerate = TRUE){
+create_panmicrobiome <- function(..., columns, treatments, agglomerate = TRUE, frequency = 0){
   options(warn=1)
   require(phyloseq)
   source("../phyloseq_scripts/find_phyloseq_generalists.R")
@@ -35,6 +35,7 @@ create_panmicrobiome <- function(..., columns, treatments, agglomerate = TRUE){
   if(agglomerate != FALSE){
     warning("WARNING: agglomerate is set as TRUE. This operation combines practically identical OTUS, which I recommend doing for OTUs from datasets called independently, however this may take a few moments.")
     source_otus <- tax_glom(source_otus, taxrank = rank_names(source_otus)[length(rank_names(source_otus))])}
+  source_otus <- find_generalists(source_otus, frequency = frequency, drop_samples = TRUE)
   return(source_otus)
 }
 
