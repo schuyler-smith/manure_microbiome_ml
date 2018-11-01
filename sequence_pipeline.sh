@@ -9,9 +9,9 @@ CHIMERA_DB=/mnt/research/germs/databases/greengene/current_Bacteria_unaligned.fa
 #pip install --user Biopython
 
 
-DIRECTORY=/mnt/research/germs/Schuyler/Projects/Xuewei
-RAWDAT_DIRECTORY=$DIRECTORY/original
-MAPPING_FILE=$RAWDAT_DIRECTORY/map.txt
+DIRECTORY=/mnt/research/germs/Schuyler/Projects/manure
+RAWDAT_DIRECTORY=RAWDAT_DIRECTORY=$germs/../soilcolumn16S2016_original
+MAPPING_FILE=$RAWDAT_DIRECTORY/SampleSheet.csv
 CORES=20
 
 ## assemble paired-ends. The below parameters work well with bacterial 16S. 
