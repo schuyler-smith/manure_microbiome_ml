@@ -1,14 +1,10 @@
-.cran_packages <- c("data.table", "e1071", "ggplot2", "RColorBrewer", "rpart", "GGally", "intergraph", "sna")
-.bioc_packages <- c("igraph","phyloseq","bioDist","dada2")
-.inst <- .cran_packages %in% installed.packages()
-if(any(!.inst)) {install.packages(.cran_packages[!.inst])};.inst <- .bioc_packages %in% installed.packages()
-if(any(!.inst)) {source("http://bioconductor.org/biocLite.R"); biocLite(.bioc_packages[!.inst], ask = F)}
-sapply(c(.cran_packages, .bioc_packages), require, character.only = TRUE)
+.req_packages <- c("data.table", "ggplot2", "igraph", "phyloseq", "bioDist", "dada2")
+sapply(.req_packages, require, character.only = TRUE)
 
 source("create_pan_microbiome.R")
 source("../phyloseq_scripts/find_phyloseq_generalists.R")
 
-nashua <- readRDS("data/nashua.column.raw.otu.taxa.RDS")
+nashua <- readRDS("data/nashua.RDS")
 pitfoam <- readRDS("data/pitfom.RDS")
 
 panmb <- create_panmicrobiome(nashua, pitfoam, columns = c("matrix", NA), treatments = c("manure", NA))
