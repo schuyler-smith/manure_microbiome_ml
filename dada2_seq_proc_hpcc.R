@@ -17,12 +17,12 @@ errR <- learnErrors(filtRs, multithread=CORES, randomize = TRUE); saveRDS(errR, 
 
 dadaFs <- dada(derepFs, err=errF, multithread=CORES); saveRDS(dadaFs, paste0(path,"/../dadaFs.RDS"))
 dadaRs <- dada(derepRs, err=errR, multithread=CORES); saveRDS(dadaRs, paste0(path,"/../dadaRs.RDS"))
-merged_reads <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=FALSE); saveRDS(dadaRs, paste0(path,"/../dadaRs.RDS"))
+merged_reads <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=FALSE); saveRDS(merged_reads, paste0(path,"/../merged_reads.RDS"))
 
-seqtab <- makeSequenceTable(merged_reads)
-seqtab <- removeBimeraDenovo(seqtab, method="consensus", multithread = CORES)
+seq_table <- makeSequenceTable(merged_reads)
+seq_table <- removeBimeraDenovo(seq_table, method="consensus", multithread = CORES); saveRDS(seq_table, paste0(path,"/../seq_table.RDS"))
 
-tax <- assignTaxonomy(seqtab, "/mnt/research/germs/databases/greengene/current_Bacteria_unaligned.fa", multithread = CORES)
+tax_table <- assignTaxonomy(seq_table, "/mnt/research/germs/databases/dada2/rdp_train_set_16.fa.gz", multithread = CORES); saveRDS(tax_table, paste0(path,"/../tax_table.RDS"))
 
-# format(object.size(merged_reads), units = "GB")
 
+readRDS()
