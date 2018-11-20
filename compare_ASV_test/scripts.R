@@ -10,11 +10,14 @@
   p_objects_names <- c("pitfoam", "nashua")
   names(phyloseq_objects) <- p_objects_names
 
-  asvs <- lapply(phyloseq_objects, taxa_names)
-  read_size_order <- order(unlist(lapply(lapply(asvs, `[[`, 1), FUN = function(seq){mean(length(strsplit(seq, "")[[1]]))})))
+  asvs <- lapply(phyloseq_objects, otu_table)
+  read_size_order <- order(unlist(lapply(lapply(asvs, FUN = function(x){rownames(x)[1]}), FUN = function(seq){mean(length(strsplit(seq, "")[[1]]))})))
   asvs <- asvs[read_size_order]
   
   pairs <- combn(names(asvs), m = 2)
+  
+
+  
   
   for(run in 1:dim(pairs)[2]){
     # asvs[[pairs[,run][2]]] <- match_seqs(asvs[[pairs[,run][1]]], asvs[[pairs[,run][2]]])
