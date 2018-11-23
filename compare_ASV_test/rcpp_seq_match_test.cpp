@@ -38,15 +38,16 @@ Rcpp::DataFrame test_match(Rcpp::NumericMatrix s_input, Rcpp::NumericMatrix l_in
             }
         }
     }
-    std::sort(dup_rows.begin(), dup_rows.end()); //sort the indices to iterate through
-    arma::mat y = Rcpp::as<arma::mat>(l_input);
-    int dup_size = dup_rows.size();
-    for(int r=0; r<dup_size; ++r){
-        y.shed_row(dup_rows[r]-r);
-        // longer_seqs.erase(dup_rows[r]-r);
-    }
-    
-    return longer_seqs;
+    // std::sort(dup_rows.begin(), dup_rows.end(), std::greater<int>()); //sort the indices in reverse order to iterate through
+    // arma::mat y = Rcpp::as<arma::mat>(l_input); // NumericMatrix y = wrap(x) ;
+    // int dup_size = dup_rows.size();
+    // for(int r=0; r<dup_size; ++r){
+    //     y.shed_row(dup_rows[r]);
+    //     longer_seqs.erase(dup_rows[r]);
+    // }
+
+
+    return s_input;
 }
 
 
