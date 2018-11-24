@@ -29,23 +29,30 @@ Rcpp::DataFrame test_match(Rcpp::NumericMatrix short_input, Rcpp::NumericMatrix 
     vector<double> dup_rows;
     vector<double> og_seqs;
     int ind; //create index counter for original of duplicate seq names
-    // #pragma omp parallel for shared(long_input)
-    #pragma omp parallel for shared(l_input)
-    for(int i=0; i<s_size; ++i){ //loop through each sequence of set with shorter read lengths
-        string s_seq (shorter_seqs[i]);
-        ind = -1; //assign ind to not be within the dataframe
-        for(int j=0; j<l_size; ++j){ //loop through other dataset
-            string l_seq (longer_seqs[j]);
-            if (l_seq.find(s_seq) != std::string::npos){ //if seq 1 is contained in seq 2
-                longer_seqs[j] = s_seq;
-                if (ind == -1){
-                    ind = j;
-                } else {
-                    og_seqs.push_back(ind);
-                    dup_rows.push_back(j); //keep track of inidices of duplicated seqs
+    #pragma omp parallel
+    {
+        vector<double> dup_rows_private;
+        vector<double> og_seqs_private;
+        #pragma omp for nowait
+        for(int i=0; i<s_size; ++i){ //loop through each sequence of set with shorter read lengths
+            string s_seq (shorter_seqs[i]);
+            ind = -1; //assign ind to not be within the dataframe
+            for(int j=0; j<l_size; ++j){ //loop through other dataset
+                string l_seq (longer_seqs[j]);
+                if (l_seq.find(s_seq) != std::string::npos){ //if seq 1 is contained in seq 2
+                    longer_seqs[j] = s_seq;
+                    if (ind == -1){
+                        ind = j;
+                    } else {
+                        og_seqs_private.push_back(ind);
+                        dup_rows_private.push_back(j); //keep track of inidices of duplicated seqs
+                    }
                 }
             }
         }
+        #pragma omp critical
+        dup_rows.insert(dup_rows.end(), dup_rows_private.begin(), dup_rows_private.end());
+        og_seqs.insert(og_seqs.end(), og_seqs_private.begin(), og_seqs_private.end());
     }
 
     arma::mat M(dup_rows);
