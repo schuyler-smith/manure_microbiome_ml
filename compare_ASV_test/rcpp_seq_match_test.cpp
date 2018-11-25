@@ -8,65 +8,76 @@
 #include <string>
 #include <regex>
 #include <RcppArmadillo.h>
+#include <RcppParallel.h>
 // [[Rcpp::depends(RcppArmadillo)]]
-#ifdef _OPENMP
-  #include <omp.h>
-#endif
-// [[Rcpp::plugins(openmp)]]
+// [[Rcpp::depends(RcppParallel)]]
+
 using namespace std;
 
 // [[Rcpp::export]]
 
 Rcpp::DataFrame test_match(Rcpp::NumericMatrix short_input, Rcpp::NumericMatrix long_input){
 
-    Rcpp::StringVector shorter_seqs = rownames(short_input);
-    Rcpp::StringVector longer_seqs = rownames(clone(long_input));
-    arma::mat l_input = Rcpp::as<arma::mat>(clone(long_input));
-    int s_size = short_input.nrow();
-    int l_size = long_input.nrow();
+    vector<string> shorter_seqs = Rcpp::as<vector<string>>(rownames(clone(short_input)));
+    vector<string> longer_seqs = Rcpp::as<vector<string>>(rownames(clone(long_input)));
+    int s_size = shorter_seqs.size();
+    int l_size = longer_seqs.size();
+    tbb::concurrent_vector<pair<double,double>> match_seqs;
+    tbb::concurrent_vector<pair<double,double>> match_dups;
 
-
-    vector<double> dup_rows;
-    vector<double> og_seqs;
-    int ind; //create index counter for original of duplicate seq names
-    #pragma omp parallel
-    {
-        vector<double> dup_rows_private;
-        vector<double> og_seqs_private;
-        #pragma omp for nowait
-        for(int i=0; i<s_size; ++i){ //loop through each sequence of set with shorter read lengths
-            string s_seq (shorter_seqs[i]);
-            ind = -1; //assign ind to not be within the dataframe
-            for(int j=0; j<l_size; ++j){ //loop through other dataset
-                string l_seq (longer_seqs[j]);
+    tbb::task_scheduler_init init;  // Automatic number of threads
+    // tbb::task_scheduler_init init(tbb::task_scheduler_init::default_num_threads());  // Explicit number of threads
+    for(int i=0; i<s_size; ++i){ //loop through each sequence of set with shorter read lengths
+        string s_seq (shorter_seqs[i]);
+        int ind = -1; //assign ind to not be within the dataframe
+        for(int j=0; j<l_size; ++j){ //loop through other dataset
+            string l_seq (longer_seqs[j]);
+            if (l_seq != s_seq){
                 if (l_seq.find(s_seq) != std::string::npos){ //if seq 1 is contained in seq 2
-                    longer_seqs[j] = s_seq;
                     if (ind == -1){
+                        match_seqs.push_back(pair<double,double>(i,j));
                         ind = j;
                     } else {
-                        og_seqs_private.push_back(ind);
-                        dup_rows_private.push_back(j); //keep track of inidices of duplicated seqs
+                        match_dups.push_back(pair<double,double>(ind,j));
                     }
+                }
+            } else {
+                if (ind == -1){
+                    match_seqs.push_back(pair<double,double>(i,j));
+                    ind = j;
+                } else {
+                    match_dups.push_back(pair<double,double>(ind,j));
                 }
             }
         }
-        #pragma omp critical
-        dup_rows.insert(dup_rows.end(), dup_rows_private.begin(), dup_rows_private.end());
-        og_seqs.insert(og_seqs.end(), og_seqs_private.begin(), og_seqs_private.end());
     }
-
-    arma::mat M(dup_rows);
-    arma::uvec indices = sort_index(M, "descend");
-    int dup_size = og_seqs.size();
-    for(int r=0; r<dup_size; ++r){ //remove data rows and duplicate taxa names
-        int index (indices[r]);
-        l_input.row(og_seqs[index]) = l_input.row(og_seqs[index]) + l_input.row(dup_rows[index]); //add values to original
-        l_input.shed_row(dup_rows[index]);
-        longer_seqs.erase(dup_rows[index]);
+// replace match of longer seqs with shorter seqs
+    int match_size = match_seqs.size();
+    for(int r=0; r<match_size; ++r){
+        longer_seqs[match_seqs[r].second] = shorter_seqs[match_seqs[r].first];
     }
-    Rcpp::NumericMatrix x = Rcpp::wrap(l_input); //convert back to rcpp matrix
-    rownames(x) = longer_seqs;
-    colnames(x) = colnames(long_input);
+// create order of duplicates in descending index (as index changes as rows will be removed)
+    int dup_size = match_dups.size();
+    vector<double> duplicates;
+    for(int r=0; r<dup_size; ++r){
+        duplicates.push_back(match_dups[r].second);
+    }
+    arma::mat M(duplicates);
+    arma::uvec dup_indices = sort_index(M, "descend");
+    
+// remove data rows and duplicate taxa names
+    Rcpp::StringVector long_seqs = Rcpp::wrap(longer_seqs);
+    arma::mat l_input = Rcpp::as<arma::mat>(clone(long_input));
+    for(int r=0; r<dup_size; ++r){ 
+        int dup_index (dup_indices[r]);
+        l_input.row(match_dups[dup_index].first) = l_input.row(match_dups[dup_index].first) + l_input.row(match_dups[dup_index].second); //add values to original
+        l_input.shed_row(match_dups[dup_index].second);
+        long_seqs.erase(match_dups[dup_index].second);
+    }
+//convert back to rcpp matrix to return to R
+    Rcpp::NumericMatrix x = Rcpp::wrap(l_input); 
+        rownames(x) = long_seqs;
+        colnames(x) = colnames(long_input);
     
     return x;
 }

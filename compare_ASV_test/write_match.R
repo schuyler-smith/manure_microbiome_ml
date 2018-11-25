@@ -11,8 +11,8 @@ asvs <- asvs[read_size_order]
 
 pairs <- combn(names(asvs), m = 2); run=1
 
-df1 <- asvs[[pairs[,run][1]]]
-df2 <- asvs[[pairs[,run][2]]]
+df1 <- asvs[[pairs[,run][1]]][1:2000,]
+df2 <- asvs[[pairs[,run][2]]][1:2000,]
 
 rownames(df1) <- c("abc", "def", "ghi", "jkl", "mno", "pqr")
 rownames(df2) <- c("abcd", "defg", "ghij", "abcm", "abcp", "pqrs","aabcd", "adefg", "aghij", "aabcm", "aabcp", "apqrs")
