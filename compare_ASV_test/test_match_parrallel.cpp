@@ -16,25 +16,20 @@
 #include <RcppParallel.h>
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(RcppParallel)]]
-
+#include <tbb/concurrent_vector.h>
 using namespace std;
 
-struct compare_seqs : public RcppParallel::Worker
-{
-   // source matrix
+struct compare_seqs : public RcppParallel::Worker{
    	vector<string> shorter_seqs;
    	vector<string> longer_seqs;
    	int l_size;
-   
-   // destination matrix
    	tbb::concurrent_vector<pair<double,double>> match_seqs;
    	tbb::concurrent_vector<pair<double, double>> match_dups;
    
-   // initialize with source and destination
+   // initialize
    	compare_seqs(vector<string> shorter_seqs, vector<string> longer_seqs, int l_size, tbb::concurrent_vector<pair<double,double>> match_seqs, tbb::concurrent_vector<pair<double, double>> match_dups) 
       : shorter_seqs(shorter_seqs), longer_seqs(longer_seqs), l_size(l_size), match_seqs(match_seqs), match_dups(match_dups) {}
    
-   // take the square root of the range of elements requested
    	void operator()(size_t begin, size_t end){
    		for(std::size_t i=begin; i < end; i++){
 			string s_seq (shorter_seqs[i]);

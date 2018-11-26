@@ -1,6 +1,6 @@
 # (...){
   options(warn=1)
-  require(phyloseq);require(Rcpp)
+  require(phyloseq);require(Rcpp);require(RcppParallel)
   sourceCpp("compare_ASV_test/rcpp_seq_match.cpp")
   
   phyloseq_objects <- list(...)
@@ -16,18 +16,10 @@
   
   pairs <- combn(names(asvs), m = 2)
   
-
-  
-  
   for(run in 1:dim(pairs)[2]){
     # asvs[[pairs[,run][2]]] <- match_seqs(asvs[[pairs[,run][1]]], asvs[[pairs[,run][2]]])
-    test <- match_seqs(asvs[[pairs[,run][1]]], asvs[[pairs[,run][2]]])
-    table(table(test)[table(test) > 1])
-    table(table(test)[table(test) > 43])
-    test[1:10]
-    a <- which(test == "TACGGAGGATCCGAGCGTTATCCGGATTTATTGGGTTTAAAGGGTGCGCAGGCGGAATATTAAGTCGGCGGTGAAAGTTTGCAGCTTAACTGTAAAATTGCCGTTGATACTGGTATTCTTGAGTGTATATGAAGTAGGCGGAATTTGTAGTGTAGCGGTGAAATGCATAGATATTACAAGGAACTCCGATTGCGAAGGCAGCTTACTAAATTACAACTGACGCTTAGGCACGAAGGCGTGGGTATCAAACAGG")
-    a <- which(test == "TACGTAGGGAGCGAGCGTTGTCCGGATTTATTGGGCGTAAAGGGCTTGTAGGTGGCTTGTCGCGTCTGCCGTGAAATTCTGCAGCTTAACTGTGGGAGTGCGGTGGGTACGGGTGGGCTTGAGTGCGGTAGGGGAGACTGGAATTCCTGGTGTAGCGGTGGAATGCGCAGATATCAGGAGGAACACCGGTGGCGAAGGCGGGTCTCTGGGCCGTTACTGACGCTGAGGAGCGAAAGCGTGGGGAGCGAACAGG")
-    
+    matched <- match_sequences(asvs[[pairs[,run][1]]], asvs[[pairs[,run][2]]])
+
     tax_table(phyloseq_objects$pitfoam)[a]
     # match_seqs(asvs[[pairs[,run][1]]][1:20], asvs[[pairs[,run][2]]][1:20])
   }

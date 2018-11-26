@@ -16,7 +16,7 @@ using namespace std;
 
 // [[Rcpp::export]]
 
-Rcpp::DataFrame test_match(Rcpp::NumericMatrix short_input, Rcpp::NumericMatrix long_input){
+Rcpp::DataFrame match_sequences(Rcpp::NumericMatrix short_input, Rcpp::NumericMatrix long_input){
 
     vector<string> shorter_seqs = Rcpp::as<vector<string>>(rownames(clone(short_input)));
     vector<string> longer_seqs = Rcpp::as<vector<string>>(rownames(clone(long_input)));
