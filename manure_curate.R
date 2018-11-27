@@ -1,14 +1,14 @@
 .req_packages <- c("data.table", "ggplot2", "igraph", "phyloseq", "bioDist", "dada2")
 sapply(.req_packages, require, character.only = TRUE)
 
-source("create_pan_microbiome.R")
+source("../phyloseq_scripts/merge_ASVs.R")
 source("../phyloseq_scripts/find_phyloseq_generalists.R")
 
 nashua <- readRDS("data/nashua.RDS")
-pitfoam <- readRDS("data/pitfom.RDS")
+pitfoam <- readRDS("data/pitfoam.RDS")
 
-panmb <- create_panmicrobiome(nashua, pitfoam, columns = c("matrix", NA), treatments = c("manure", NA))
-panmb <- readRDS("data/panmb.RDS")
+merged_asvs <- merge_asvs(nashua, pitfoam)
+sum(taxa_names(merged_asvs$nashua) %in% taxa_names(merged_asvs$pitfoam))
 
 
 find_generalists(nashua, frequency = 1, treatments = "matrix", subset = "manure")
