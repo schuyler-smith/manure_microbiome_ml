@@ -1,5 +1,4 @@
-.req_packages <- c("data.table", "ggplot2", "igraph", "phyloseq", "bioDist", "dada2")
-sapply(.req_packages, require, character.only = TRUE)
+
 
 source("../phyloseq_scripts/merge_ASVs.R")
 source("../phyloseq_scripts/find_phyloseq_generalists.R")
@@ -9,10 +8,9 @@ pitfoam <- readRDS("data/pitfoam.RDS")
 
 merged_asvs <- merge_asvs(nashua, pitfoam)
 sum(taxa_names(merged_asvs$nashua) %in% taxa_names(merged_asvs$pitfoam))
+merged_phyloseq <- eval(parse(text=paste0("merge_phyloseq(", paste0("merged_asvs$",names(merged_asvs), collapse = ", "), ")")))
 
 
-find_generalists(nashua, frequency = 1, treatments = "matrix", subset = "manure")
-find_generalists(pitfoam, frequency = 1)
-find_generalists(panmb, frequency = .99, drop_samples = TRUE)
+find_generalists(merged_phyloseq, frequency = .1)
 
 
